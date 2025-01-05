@@ -82,11 +82,24 @@
             { note: "Eb", speak: "E Flat" },
             { note: "E", speak: "E" },
             { note: "F", speak: "F" },
-            { note: "F#", speak: "F Sharp" },
+            { note: "F#", speak: "F Sharp" },  // Display as F#
             { note: "Gb", speak: "G Flat" },
             { note: "G", speak: "G" },
             { note: "G#", speak: "G Sharp" }
         ];
+
+        const displayNoteMap = {
+            "A#": "A#",
+            "Bb": "Bb",
+            "C#": "C#",
+            "Db": "Db",
+            "D#": "D#",
+            "Eb": "Eb",
+            "F#": "F#",
+            "Gb": "Gb",
+            "G#": "G#"
+        };
+
         const guitarStrings = ["Low E", "A", "D", "G", "B", "High E"];
         
         let intervalId;
@@ -113,12 +126,17 @@
 
             let selected = notes[Math.floor(Math.random() * notes.length)];
             let selectedString = guitarStrings[Math.floor(Math.random() * guitarStrings.length)];
-            let message = `On the <strong>${selectedString} </strong> string, play <strong>${selected.speak}</strong>`;
+
+            // Display the note normally (F#) but speak the full name (F Sharp)
+            let displayNote = displayNoteMap[selected.note] || selected.note;
+            let message = `On the <strong>${selectedString}</strong> string, play <strong>${displayNote}</strong>`;
 
             document.getElementById("note").innerHTML = message;
 
             if (volumeOn && 'speechSynthesis' in window) {
-                let utterance = new SpeechSynthesisUtterance(message.replace(/<[^>]+>/g, '')); // Strip HTML tags for speech
+                let utterance = new SpeechSynthesisUtterance(
+                    `On the ${selectedString} string, play ${selected.speak}`
+                );
                 speechSynthesis.speak(utterance);
             }
         }
