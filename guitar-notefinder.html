@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Fretboard Note Trainer</title>
+    <title>Note Finder</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -14,9 +14,9 @@
             margin-bottom: 30px;
         }
         button {
-            padding: 15px 25px;
-            font-size: 18px;
-            margin: 10px;
+            padding: 15px 30px;
+            font-size: 20px;
+            margin: 12px;
             cursor: pointer;
         }
         input {
@@ -24,8 +24,24 @@
             width: 60px;
             text-align: center;
         }
-        .home-button {
+        #note {
+            font-size: 40px;
+            margin: 30px 0;
+        }
+        .home-button, .volume-button {
             background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        .start-button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        .stop-button {
+            background-color: #dc3545;
             color: white;
             border: none;
             border-radius: 5px;
@@ -33,13 +49,18 @@
     </style>
 </head>
 <body>
-    <h1>Guitar Note Trainer</h1>
-    <p id="note">Press Start to Begin</p>
+    <h3>Guitar Note Finder Exercises</h3>
+    <p id="note"><strong>Click to start / stop</strong></p>
     <label for="interval">Interval (seconds):</label>
     <input type="number" id="interval" value="3" min="1">
+    
     <div>
-        <button onclick="startTrainer()">Start</button>
-        <button onclick="stopTrainer()">Stop</button>
+        <button class="start-button" onclick="startTrainer()">Start</button>
+        <button class="stop-button" onclick="stopTrainer()">Stop</button>
+    </div>
+
+    <div>
+        <button class="volume-button" onclick="toggleVolume()">🔊 Volume On</button>
     </div>
 
     <!-- Back to Home Button -->
@@ -67,21 +88,23 @@
             { note: "G#", speak: "G Sharp" }
         ];
         const guitarStrings = ["Low E", "A", "D", "G", "B", "High E"];
+        
         let intervalId;
         let isPlaying = false;
+        let volumeOn = true;
 
         function startTrainer() {
             let interval = parseInt(document.getElementById("interval").value) * 1000;
             if (intervalId) clearInterval(intervalId);
             intervalId = setInterval(playNote, interval);
-            playNote();  // Play immediately on start
+            playNote();  
             isPlaying = true;
         }
 
         function stopTrainer() {
             if (intervalId) clearInterval(intervalId);
             intervalId = null;
-            document.getElementById("note").innerText = "Trainer Stopped";
+            document.getElementById("note").innerHTML = "<strong>Paused</strong>";
             isPlaying = false;
         }
 
@@ -89,31 +112,38 @@
             if (!isPlaying) return;
 
             let selected = notes[Math.floor(Math.random() * notes.length)];
-            let selectedStringIndex = Math.floor(Math.random() * guitarStrings.length);
-            let selectedString = guitarStrings[selectedStringIndex];
-            let message = `${selected.speak} on the ${selectedString} string`;
+            let selectedString = guitarStrings[Math.floor(Math.random() * guitarStrings.length)];
+            let message = `On the <strong>${selectedString} </strong> string, play <strong>${selected.speak}</strong>`;
 
-            // Ensure speech works after user interaction
-            if ('speechSynthesis' in window) {
-                let utterance = new SpeechSynthesisUtterance(message);
+            document.getElementById("note").innerHTML = message;
+
+            if (volumeOn && 'speechSynthesis' in window) {
+                let utterance = new SpeechSynthesisUtterance(message.replace(/<[^>]+>/g, '')); // Strip HTML tags for speech
                 speechSynthesis.speak(utterance);
-            } else {
-                alert("Speech synthesis is not supported in your browser.");
             }
-            document.getElementById("note").innerText = message;
         }
 
-        // Ensure speech works only after interaction
+        // Auto-start after first click
         document.addEventListener('click', () => {
-            if ('speechSynthesis' in window && !isPlaying) {
-                let utterance = new SpeechSynthesisUtterance("Trainer Ready");
-                speechSynthesis.speak(utterance);
+            if (!isPlaying) {
+                startTrainer();
+                if (volumeOn && 'speechSynthesis' in window) {
+                    let utterance = new SpeechSynthesisUtterance("Trainer Ready");
+                    speechSynthesis.speak(utterance);
+                }
             }
         }, { once: true });
 
-        // Back to Home Button Functionality
+        // Toggle volume
+        function toggleVolume() {
+            volumeOn = !volumeOn;
+            const button = document.querySelector('.volume-button');
+            button.innerHTML = volumeOn ? "🔊 Volume On" : "🔇 Volume Off";
+        }
+
+        // Back to Home Function
         function goHome() {
-            window.location.href = "index.html";  // Replace with the actual path to your home page
+            window.location.href = "index.html";
         }
     </script>
 </body>
