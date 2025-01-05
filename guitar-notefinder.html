@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Guitar Note Trainer</title>
+    <title>Fretboard Note Trainer</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -24,6 +24,12 @@
             width: 60px;
             text-align: center;
         }
+        .home-button {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
@@ -34,6 +40,11 @@
     <div>
         <button onclick="startTrainer()">Start</button>
         <button onclick="stopTrainer()">Stop</button>
+    </div>
+
+    <!-- Back to Home Button -->
+    <div>
+        <button class="home-button" onclick="goHome()">Back to Home</button>
     </div>
 
     <script>
@@ -99,6 +110,11 @@
                 speechSynthesis.speak(utterance);
             }
         }, { once: true });
+
+        // Back to Home Button Functionality
+        function goHome() {
+            window.location.href = "index.html";  // Replace with the actual path to your home page
+        }
     </script>
 </body>
 </html>

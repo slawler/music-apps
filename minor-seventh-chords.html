@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Minor 7th Chord Finder</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 50px;
+            background-color: #f4f4f4;
+        }
+        table {
+            margin: 20px auto;
+            border-collapse: collapse;
+            width: 70%;
+        }
+        th, td {
+            padding: 15px;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #007BFF;
+            color: white;
+        }
+        select {
+            padding: 10px;
+            font-size: 16px;
+            margin: 20px 10px;
+        }
+        .home-button {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>7th Chords Minor Scale</h1>
+    <label for="keySelect">Select Key:</label>
+    <select id="keySelect" onchange="showChords()">
+        <option value="A">Am</option>
+        <option value="A#">A#m</option>
+        <option value="Bb">Bbm</option>
+        <option value="B">Bm</option>
+        <option value="C">Cm</option>
+        <option value="C#">C#m</option>
+        <option value="Db">Dbm</option>
+        <option value="D">Dm</option>
+        <option value="D#">D#m</option>
+        <option value="Eb">Ebm</option>
+        <option value="E">Em</option>
+        <option value="F">Fm</option>
+        <option value="F#">F#m</option>
+        <option value="Gb">Gbm</option>
+        <option value="G">Gm</option>
+        <option value="G#">G#m</option>
+        <option value="Ab">Abm</option>
+    </select>
+
+    <table id="chordTable">
+        <tr>
+            <th>Scale Degree</th>
+            <th>Chord Name</th>
+            <th>Chord Tones</th>
+        </tr>
+    </table>
+
+    
+    <!-- Back to Home Button -->
+    <div>
+        <button class="home-button" onclick="goHome()">Back to Home</button>
+    </div>
+    
+
+    <script>
+const chordData = {
+    A: { "i7": "A - C - E - G", "iiø7": "B - D - F - A", "III△7": "C - E - G - B", "iv7": "D - F - A - C", "v7": "E - G - B - D", "VI△7": "F - A - C - E", "VII7": "G - B - D - F" },
+    Bb: { "i7": "Bb - Db - F - Ab", "iiø7": "C - Eb - Gb - Bb", "III△7": "Db - F - Ab - C", "iv7": "Eb - Gb - Bb - Db", "v7": "F - Ab - C - Eb", "VI△7": "Gb - Bb - Db - F", "VII7": "Ab - C - Eb - Gb" },
+    B: { "i7": "B - D - F# - A", "iiø7": "C# - E - G - B", "III△7": "D - F# - A - C#", "iv7": "E - G - B - D", "v7": "F# - A - C# - E", "VI△7": "G - B - D - F#", "VII7": "A - C# - E - G" },
+    C: { "i7": "C - Eb - G - Bb", "iiø7": "D - F - Ab - C", "III△7": "Eb - G - Bb - D", "iv7": "F - Ab - C - Eb", "v7": "G - Bb - D - F", "VI△7": "Ab - C - Eb - G", "VII7": "Bb - D - F - Ab" },
+    "C#": { "i7": "C# - E - G# - B", "iiø7": "D# - F# - A - C#", "III△7": "E - G# - B - D#", "iv7": "F# - A - C# - E", "v7": "G# - B - D# - F#", "VI△7": "A - C# - E - G#", "VII7": "B - D# - F# - A" },
+    Db: { "i7": "Db - Fb - Ab - Cb", "iiø7": "Eb - Gb - Bbb - Db", "III△7": "Fb - Ab - Cb - Eb", "iv7": "Gb - Bbb - Db - Fb", "v7": "Ab - Cb - Eb - Gb", "VI△7": "Bbb - Db - Fb - Ab", "VII7": "Cb - Eb - Gb - Bbb" },
+    D: { "i7": "D - F - A - C", "iiø7": "E - G - Bb - D", "III△7": "F - A - C - E", "iv7": "G - Bb - D - F", "v7": "A - C - E - G", "VI△7": "Bb - D - F - A", "VII7": "C - E - G - Bb" },
+    Eb: { "i7": "Eb - Gb - Bb - Db", "iiø7": "F - Ab - Cb - Eb", "III△7": "Gb - Bb - Db - F", "iv7": "Ab - Cb - Eb - Gb", "v7": "Bb - Db - F - Ab", "VI△7": "Cb - Eb - Gb - Bb", "VII7": "Db - F - Ab - Cb" },
+    E: { "i7": "E - G - B - D", "iiø7": "F# - A - C - E", "III△7": "G - B - D - F#", "iv7": "A - C - E - G", "v7": "B - D - F# - A", "VI△7": "C - E - G - B", "VII7": "D - F# - A - C" },
+    F: { "i7": "F - Ab - C - Eb", "iiø7": "G - Bb - Db - F", "III△7": "Ab - C - Eb - G", "iv7": "Bb - Db - F - Ab", "v7": "C - Eb - G - Bb", "VI△7": "Db - F - Ab - C", "VII7": "Eb - G - Bb - Db" },
+    "F#": { "i7": "F# - A - C# - E", "iiø7": "G# - B - D - F#", "III△7": "A - C# - E - G#", "iv7": "B - D - F# - A", "v7": "C# - E - G# - B", "VI△7": "D - F# - A - C#", "VII7": "E - G# - B - D" },
+    Gb: { "i7": "Gb - Bbb - Db - Fb", "iiø7": "Ab - Cb - Ebb - Gb", "III△7": "Bbb - Db - Fb - Ab", "iv7": "Cb - Ebb - Gb - Bbb", "v7": "Db - Fb - Ab - Cb", "VI△7": "Ebb - Gb - Bbb - Db", "VII7": "Fb - Ab - Cb - Ebb" },
+    G: { "i7": "G - Bb - D - F", "iiø7": "A - C - Eb - G", "III△7": "Bb - D - F - A", "iv7": "C - Eb - G - Bb", "v7": "D - F - A - C", "VI△7": "Eb - G - Bb - D", "VII7": "F - A - C - Eb" },
+    Ab: { "i7": "Ab - Cb - Eb - Gb", "iiø7": "Bb - Db - Fb - Ab", "III△7": "Cb - Eb - Gb - Bb", "iv7": "Db - Fb - Ab - Cb", "v7": "Eb - Gb - Bb - Db", "VI△7": "Fb - Ab - Cb - Eb", "VII7": "Gb - Bb - Db - Fb" },
+    "A#": { "i7": "A# - C# - E# - G#",  "iiø7": "B# - D# - F# - A#",  "III△7": "C# - E# - G# - B#",  "iv7": "D# - F# - A# - C#",  "v7": "E# - G# - B# - D#",  "VI△7": "F# - A# - C# - E#",  "VII7": "G# - B# - D# - F#" },
+    "D#": {"i7": "D# - F# - A# - C#", "iiø7": "E# - G# - B - D#", "III△7": "F# - A# - C# - E#", "iv7": "G# - B - D# - F#", "v7": "A# - C# - E# - G#", "VI△7": "B - D# - F# - A#", "VII7": "C# - E# - G# - B"},
+    "G#": {"i7": "G# - B - D# - F#", "iiø7": "A# - C# - E - G#", "III△7": "B - D# - F# - A#", "iv7": "C# - E - G# - B", "v7": "D# - F# - A# - C#", "VI△7": "E - G# - B - D#", "VII7": "F# - A# - C# - E"}
+};
+
+
+
+const chordNames = {
+    A: ["A-7", "Bø7", "C△7", "D-7", "E-7", "F△7", "G7"],
+    Bb: ["Bb-7", "Cø7", "Db△7", "Eb-7", "F-7", "Gb△7", "Ab7"],
+    B: ["B-7", "C#ø7", "D△7", "E-7", "F#-7", "G△7", "A7"],
+    C: ["C-7", "Dø7", "Eb△7", "F-7", "G-7", "Ab△7", "Bb7"],
+    "C#": ["C#-7", "D#ø7", "E△7", "F#-7", "G#-7", "A△7", "B7"],
+    Db: ["Db-7", "Ebø7", "Fb△7", "Gb-7", "Ab-7", "Bbb△7", "Cb7"],
+    D: ["D-7", "Eø7", "F△7", "G-7", "A-7", "Bb△7", "C7"],
+    Eb: ["Eb-7", "Fø7", "Gb△7", "Ab-7", "Bb-7", "Cb△7", "Db7"],
+    E: ["E-7", "F#ø7", "G△7", "A-7", "B-7", "C△7", "D7"],
+    F: ["F-7", "Gø7", "Ab△7", "Bb-7", "C-7", "Db△7", "Eb7"],
+    "F#": ["F#-7", "G#ø7", "A△7", "B-7", "C#-7", "D△7", "E7"],
+    Gb: ["Gb-7", "Abø7", "Bbb△7", "Cb-7", "Db-7", "Ebb△7", "Fb7"],
+    G: ["G-7", "Aø7", "Bb△7", "C-7", "D-7", "Eb△7", "F7"],
+    Ab: ["Ab-7", "Bbø7", "Cb△7", "Db-7", "Eb-7", "Fb△7", "Gb7"],
+    "A#": ["A#-7", "Cø7", "D#△7", "F-7", "G-7", "A#△7", "B#7"],
+    "D#": ["D#-7", "Fø7", "G#△7", "A#-7", "C-7", "D#△7", "E#7"],
+    "G#": ["G#-7", "A#ø7", "B△7", "C#-7", "D#-7", "E△7", "F#7"]
+};
+
+
+        function showChords() {
+            const key = document.getElementById("keySelect").value;
+            const table = document.getElementById("chordTable");
+            table.innerHTML = "<tr><th>Scale Degree</th><th>Chord Name</th><th>Chord Tones</th></tr>";
+
+            if (chordData[key] && chordNames[key]) {
+                const degrees = Object.keys(chordData[key]);
+                const tones = Object.values(chordData[key]);
+                const names = chordNames[key];
+
+                for (let i = 0; i < degrees.length; i++) {
+                    table.innerHTML += `<tr><td>${degrees[i]}</td><td>${names[i]}</td><td>${tones[i]}</td></tr>`;
+                }
+            } else {
+                table.innerHTML = `<tr><td colspan="3">No chords found for this key.</td></tr>`;
+            }
+        }
+
+        window.onload = showChords;
+            // Back to Home Button Functionality
+            function goHome() {
+            window.location.href = "index.html";  // Replace with the actual path to your home page
+        }
+    </script>
+</body>
+</html>
