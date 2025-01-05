@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Guitar Note Trainer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            margin-bottom: 30px;
+        }
+        button {
+            padding: 15px 25px;
+            font-size: 18px;
+            margin: 10px;
+            cursor: pointer;
+        }
+        input {
+            font-size: 18px;
+            width: 60px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>Guitar Note Trainer</h1>
+    <p id="note">Press Start to Begin</p>
+    <label for="interval">Interval (seconds):</label>
+    <input type="number" id="interval" value="3" min="1">
+    <div>
+        <button onclick="startTrainer()">Start</button>
+        <button onclick="stopTrainer()">Stop</button>
+    </div>
+
+    <script>
+        const notes = [
+            { note: "A", speak: "A" },
+            { note: "A#", speak: "A Sharp" },
+            { note: "Bb", speak: "B Flat" },
+            { note: "B", speak: "B" },
+            { note: "C", speak: "C" },
+            { note: "C#", speak: "C Sharp" },
+            { note: "Db", speak: "D Flat" },
+            { note: "D", speak: "D" },
+            { note: "D#", speak: "D Sharp" },
+            { note: "Eb", speak: "E Flat" },
+            { note: "E", speak: "E" },
+            { note: "F", speak: "F" },
+            { note: "F#", speak: "F Sharp" },
+            { note: "Gb", speak: "G Flat" },
+            { note: "G", speak: "G" },
+            { note: "G#", speak: "G Sharp" }
+        ];
+        const guitarStrings = ["Low E", "A", "D", "G", "B", "High E"];
+        let intervalId;
+        let isPlaying = false;
+
+        function startTrainer() {
+            let interval = parseInt(document.getElementById("interval").value) * 1000;
+            if (intervalId) clearInterval(intervalId);
+            intervalId = setInterval(playNote, interval);
+            playNote();  // Play immediately on start
+            isPlaying = true;
+        }
+
+        function stopTrainer() {
+            if (intervalId) clearInterval(intervalId);
+            intervalId = null;
+            document.getElementById("note").innerText = "Trainer Stopped";
+            isPlaying = false;
+        }
+
+        function playNote() {
+            if (!isPlaying) return;
+
+            let selected = notes[Math.floor(Math.random() * notes.length)];
+            let selectedStringIndex = Math.floor(Math.random() * guitarStrings.length);
+            let selectedString = guitarStrings[selectedStringIndex];
+            let message = `${selected.speak} on the ${selectedString} string`;
+
+            // Ensure speech works after user interaction
+            if ('speechSynthesis' in window) {
+                let utterance = new SpeechSynthesisUtterance(message);
+                speechSynthesis.speak(utterance);
+            } else {
+                alert("Speech synthesis is not supported in your browser.");
+            }
+            document.getElementById("note").innerText = message;
+        }
+
+        // Ensure speech works only after interaction
+        document.addEventListener('click', () => {
+            if ('speechSynthesis' in window && !isPlaying) {
+                let utterance = new SpeechSynthesisUtterance("Trainer Ready");
+                speechSynthesis.speak(utterance);
+            }
+        }, { once: true });
+    </script>
+</body>
+</html>
