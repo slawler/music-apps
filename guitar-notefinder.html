@@ -19,10 +19,9 @@
             margin: 12px;
             cursor: pointer;
         }
-        input {
+        input, select {
             font-size: 18px;
-            width: 60px;
-            text-align: center;
+            margin: 10px;
         }
         #note {
             font-size: 40px;
@@ -50,10 +49,15 @@
 </head>
 <body>
     <h3>Guitar Note Finder Exercises</h3>
-    <p id="note"><strong>Click to start / stop</strong></p>
+    <p id="note"><strong>Click start to begin</strong></p>
     <label for="interval">Interval (seconds):</label>
     <input type="number" id="interval" value="3" min="1">
-    
+
+    <label for="string-select">Choose String:</label>
+    <select id="string-select">
+        <option value="all">All Strings</option>
+    </select>
+
     <div>
         <button class="start-button" onclick="startTrainer()">Start</button>
         <button class="stop-button" onclick="stopTrainer()">Stop</button>
@@ -82,7 +86,7 @@
             { note: "Eb", speak: "E Flat" },
             { note: "E", speak: "E" },
             { note: "F", speak: "F" },
-            { note: "F#", speak: "F Sharp" },  // Display as F#
+            { note: "F#", speak: "F Sharp" },
             { note: "Gb", speak: "G Flat" },
             { note: "G", speak: "G" },
             { note: "G#", speak: "G Sharp" }
@@ -106,11 +110,20 @@
         let isPlaying = false;
         let volumeOn = true;
 
+        // Populate the string dropdown menu
+        const stringSelect = document.getElementById("string-select");
+        guitarStrings.forEach((string) => {
+            const option = document.createElement("option");
+            option.value = string;
+            option.textContent = string;
+            stringSelect.appendChild(option);
+        });
+
         function startTrainer() {
-            let interval = parseInt(document.getElementById("interval").value) * 1000;
+            const interval = parseInt(document.getElementById("interval").value) * 1000;
             if (intervalId) clearInterval(intervalId);
             intervalId = setInterval(playNote, interval);
-            playNote();  
+            playNote();
             isPlaying = true;
         }
 
@@ -124,33 +137,24 @@
         function playNote() {
             if (!isPlaying) return;
 
-            let selected = notes[Math.floor(Math.random() * notes.length)];
-            let selectedString = guitarStrings[Math.floor(Math.random() * guitarStrings.length)];
+            const selectedString = stringSelect.value === "all" 
+                ? guitarStrings[Math.floor(Math.random() * guitarStrings.length)] 
+                : stringSelect.value;
 
-            // Display the note normally (F#) but speak the full name (F Sharp)
-            let displayNote = displayNoteMap[selected.note] || selected.note;
-            let message = `On the <strong>${selectedString}</strong> string, play <strong>${displayNote}</strong>`;
+            const selectedNote = notes[Math.floor(Math.random() * notes.length)];
+
+            const displayNote = displayNoteMap[selectedNote.note] || selectedNote.note;
+            const message = `On the <strong>${selectedString}</strong> string, play <strong>${displayNote}</strong>`;
 
             document.getElementById("note").innerHTML = message;
 
             if (volumeOn && 'speechSynthesis' in window) {
-                let utterance = new SpeechSynthesisUtterance(
-                    `On the ${selectedString} string, play ${selected.speak}`
+                const utterance = new SpeechSynthesisUtterance(
+                    `On the ${selectedString} string, play ${selectedNote.speak}`
                 );
                 speechSynthesis.speak(utterance);
             }
         }
-
-        // Auto-start after first click
-        document.addEventListener('click', () => {
-            if (!isPlaying) {
-                startTrainer();
-                if (volumeOn && 'speechSynthesis' in window) {
-                    let utterance = new SpeechSynthesisUtterance("Trainer Ready");
-                    speechSynthesis.speak(utterance);
-                }
-            }
-        }, { once: true });
 
         // Toggle volume
         function toggleVolume() {
