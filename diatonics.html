@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chord Tones Trainer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+            margin: 0;
+        }
+        h1 {
+            margin-bottom: 30px;
+        }
+        button {
+            padding: 15px 30px;
+            font-size: 18px;
+            margin: 10px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+        }
+        select, input {
+            font-size: 16px;
+            padding: 8px;
+            margin: 10px;
+        }
+        table {
+            margin: 20px auto;
+            border-collapse: collapse;
+            width: 80%;
+            font-size: 18px;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ccc;
+        }
+        th {
+            background-color: #007BFF;
+            color: white;
+        }
+        #chordTable {
+            margin-top: 20px;
+        }
+        .start-button {
+            background-color: #28a745;
+            color: white;
+        }
+        .stop-button {
+            background-color: #dc3545;
+            color: white;
+        }
+        .volume-button {
+            background-color: #007BFF;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <h1>Chord Tone Trainer</h1>
+    <label for="keySelect">Select Key:</label>
+    <select id="keySelect">
+        <option value="A">A</option>
+        <option value="A#">A#</option>
+        <option value="Bb">Bb</option>
+        <option value="B">B</option>
+        <option value="C">C</option>
+        <option value="C#">C#</option>
+        <option value="Db">Db</option>
+        <option value="D">D</option>
+        <option value="D#">D#</option>
+        <option value="Eb">Eb</option>
+        <option value="E">E</option>
+        <option value="F">F</option>
+        <option value="F#">F#</option>
+        <option value="Gb">Gb</option>
+        <option value="G">G</option>
+        <option value="G#">G#</option>
+        <option value="Ab">Ab</option>
+    </select>
+    <div>
+        <label for="intervalInput">Interval (seconds):</label>
+        <input type="number" id="intervalInput" value="1" min="1">
+    </div>
+    <div>
+        <label for="guessIntervalInput">Guess Interval (seconds):</label>
+        <input type="number" id="guessIntervalInput" value="1" min="1">
+    </div>
+    <div>
+        <button class="start-button" onclick="startTrainer()">Start</button>
+        <button class="stop-button" onclick="stopTrainer()">Stop</button>
+    </div>
+    <div>
+        <button class="volume-button" onclick="toggleVolume()">🔊 Volume On</button>
+    </div>
+    <div id="chordTable"></div>
+
+    <script>
+const chordData = {
+    A: [
+        { interval: "Root", chord: "A Major 7", notes: "A - C# - E - G#" },
+        { interval: "2nd", chord: "B Minor 7", notes: "B - D - F# - A" },
+        { interval: "3rd", chord: "C# Minor 7", notes: "C# - E - G# - B" },
+        { interval: "4th", chord: "D Major 7", notes: "D - F# - A - C#" },
+        { interval: "5th", chord: "E Dominant 7", notes: "E - G# - B - D" },
+        { interval: "6th", chord: "F# Minor 7", notes: "F# - A - C# - E" },
+        { interval: "7th", chord: "G# Half Diminished 7", notes: "G# - B - D - F#" }
+    ],
+    "A#": [
+        { interval: "Root", chord: "A# Major 7", notes: "A# - C## - E# - G##" },
+        { interval: "2nd", chord: "B# Minor 7", notes: "B# - D# - F## - A#" },
+        { interval: "3rd", chord: "C## Minor 7", notes: "C## - E# - G## - B#" },
+        { interval: "4th", chord: "D# Major 7", notes: "D# - F## - A# - C##" },
+        { interval: "5th", chord: "E# Dominant 7", notes: "E# - G## - B# - D#" },
+        { interval: "6th", chord: "F## Minor 7", notes: "F## - A# - C## - E#" },
+        { interval: "7th", chord: "G## Half Diminished 7", notes: "G## - B# - D# - F##" }
+    ],
+    Bb: [
+        { interval: "Root", chord: "Bb Major 7", notes: "Bb - D - F - A" },
+        { interval: "2nd", chord: "C Minor 7", notes: "C - Eb - G - Bb" },
+        { interval: "3rd", chord: "D Minor 7", notes: "D - F - A - C" },
+        { interval: "4th", chord: "Eb Major 7", notes: "Eb - G - Bb - D" },
+        { interval: "5th", chord: "F Dominant 7", notes: "F - A - C - Eb" },
+        { interval: "6th", chord: "G Minor 7", notes: "G - Bb - D - F" },
+        { interval: "7th", chord: "A Half Diminished 7", notes: "A - C - Eb - G" }
+    ],
+    B: [
+        { interval: "Root", chord: "B Major 7", notes: "B - D# - F# - A#" },
+        { interval: "2nd", chord: "C# Minor 7", notes: "C# - E - G# - B" },
+        { interval: "3rd", chord: "D# Minor 7", notes: "D# - F# - A# - C#" },
+        { interval: "4th", chord: "E Major 7", notes: "E - G# - B - D#" },
+        { interval: "5th", chord: "F# Dominant 7", notes: "F# - A# - C# - E" },
+        { interval: "6th", chord: "G# Minor 7", notes: "G# - B - D# - F#" },
+        { interval: "7th", chord: "A# Half Diminished 7", notes: "A# - C# - E - G#" }
+    ],
+    C: [
+        { interval: "Root", chord: "C Major 7", notes: "C - E - G - B" },
+        { interval: "2nd", chord: "D Minor 7", notes: "D - F - A - C" },
+        { interval: "3rd", chord: "E Minor 7", notes: "E - G - B - D" },
+        { interval: "4th", chord: "F Major 7", notes: "F - A - C - E" },
+        { interval: "5th", chord: "G Dominant 7", notes: "G - B - D - F" },
+        { interval: "6th", chord: "A Minor 7", notes: "A - C - E - G" },
+        { interval: "7th", chord: "B Half Diminished 7", notes: "B - D - F - A" }
+    ],
+    "C#": [
+        { interval: "Root", chord: "C# Major 7", notes: "C# - E# - G# - B#" },
+        { interval: "2nd", chord: "D# Minor 7", notes: "D# - F# - A# - C#" },
+        { interval: "3rd", chord: "E# Minor 7", notes: "E# - G# - B# - D#" },
+        { interval: "4th", chord: "F# Major 7", notes: "F# - A# - C# - E#" },
+        { interval: "5th", chord: "G# Dominant 7", notes: "G# - B# - D# - F#" },
+        { interval: "6th", chord: "A# Minor 7", notes: "A# - C# - E# - G#" },
+        { interval: "7th", chord: "B# Half Diminished 7", notes: "B# - D# - F# - A#" }
+    ],
+    Db: [
+        { interval: "Root", chord: "Db Major 7", notes: "Db - F - Ab - C" },
+        { interval: "2nd", chord: "Eb Minor 7", notes: "Eb - Gb - Bb - Db" },
+        { interval: "3rd", chord: "F Minor 7", notes: "F - Ab - C - Eb" },
+        { interval: "4th", chord: "Gb Major 7", notes: "Gb - Bb - Db - F" },
+        { interval: "5th", chord: "Ab Dominant 7", notes: "Ab - C - Eb - Gb" },
+        { interval: "6th", chord: "Bb Minor 7", notes: "Bb - Db - F - Ab" },
+        { interval: "7th", chord: "C Half Diminished 7", notes: "C - Eb - Gb - Bb" }
+    ],
+
+    D: [
+        { interval: "Root", chord: "D Major 7", notes: "D - F# - A - C#" },
+        { interval: "2nd", chord: "E Minor 7", notes: "E - G - B - D" },
+        { interval: "3rd", chord: "F# Minor 7", notes: "F# - A - C# - E" },
+        { interval: "4th", chord: "G Major 7", notes: "G - B - D - F#" },
+        { interval: "5th", chord: "A Dominant 7", notes: "A - C# - E - G" },
+        { interval: "6th", chord: "B Minor 7", notes: "B - D - F# - A" },
+        { interval: "7th", chord: "C# Half Diminished 7", notes: "C# - E - G - B" }
+    ],
+    "D#": [
+        { interval: "Root", chord: "D# Major 7", notes: "D# - Fx - A# - Cx" },
+        { interval: "2nd", chord: "E# Minor 7", notes: "E# - G# - B# - D#" },
+        { interval: "3rd", chord: "Fx Minor 7", notes: "Fx - A# - Cx - E#" },
+        { interval: "4th", chord: "G# Major 7", notes: "G# - B# - D# - Fx" },
+        { interval: "5th", chord: "A# Dominant 7", notes: "A# - Cx - E# - G#" },
+        { interval: "6th", chord: "B# Minor 7", notes: "B# - D# - Fx - A#" },
+        { interval: "7th", chord: "Cx Half Diminished 7", notes: "Cx - E# - G# - B#" }
+    ],
+    Eb: [
+        { interval: "Root", chord: "Eb Major 7", notes: "Eb - G - Bb - D" },
+        { interval: "2nd", chord: "F Minor 7", notes: "F - Ab - C - Eb" },
+        { interval: "3rd", chord: "G Minor 7", notes: "G - Bb - D - F" },
+        { interval: "4th", chord: "Ab Major 7", notes: "Ab - C - Eb - G" },
+        { interval: "5th", chord: "Bb Dominant 7", notes: "Bb - D - F - Ab" },
+        { interval: "6th", chord: "C Minor 7", notes: "C - Eb - G - Bb" },
+        { interval: "7th", chord: "D Half Diminished 7", notes: "D - F - Ab - C" }
+    ],
+    E: [
+        { interval: "Root", chord: "E Major 7", notes: "E - G# - B - D#" },
+        { interval: "2nd", chord: "F# Minor 7", notes: "F# - A - C# - E" },
+        { interval: "3rd", chord: "G# Minor 7", notes: "G# - B - D# - F#" },
+        { interval: "4th", chord: "A Major 7", notes: "A - C# - E - G#" },
+        { interval: "5th", chord: "B Dominant 7", notes: "B - D# - F# - A" },
+        { interval: "6th", chord: "C# Minor 7", notes: "C# - E - G# - B" },
+        { interval: "7th", chord: "D# Half Diminished 7", notes: "D# - F# - A - C#" }
+    ],
+    F: [
+        { interval: "Root", chord: "F Major 7", notes: "F - A - C - E" },
+        { interval: "2nd", chord: "G Minor 7", notes: "G - Bb - D - F" },
+        { interval: "3rd", chord: "A Minor 7", notes: "A - C - E - G" },
+        { interval: "4th", chord: "Bb Major 7", notes: "Bb - D - F - A" },
+        { interval: "5th", chord: "C Dominant 7", notes: "C - E - G - Bb" },
+        { interval: "6th", chord: "D Minor 7", notes: "D - F - A - C" },
+        { interval: "7th", chord: "E Half Diminished 7", notes: "E - G - Bb - D" }
+    ],
+    "F#": [
+        { interval: "Root", chord: "F# Major 7", notes: "F# - A# - C# - E#" },
+        { interval: "2nd", chord: "G# Minor 7", notes: "G# - B - D# - F#" },
+        { interval: "3rd", chord: "A# Minor 7", notes: "A# - C# - E# - G#" },
+        { interval: "4th", chord: "B Major 7", notes: "B - D# - F# - A#" },
+        { interval: "5th", chord: "C# Dominant 7", notes: "C# - E# - G# - B" },
+        { interval: "6th", chord: "D# Minor 7", notes: "D# - F# - A# - C#" },
+        { interval: "7th", chord: "E# Half Diminished 7", notes: "E# - G# - B - D#" }
+    ],
+    Gb: [
+        { interval: "Root", chord: "Gb Major 7", notes: "Gb - Bb - Db - F" },
+        { interval: "2nd", chord: "Ab Minor 7", notes: "Ab - Cb - Eb - Gb" },
+        { interval: "3rd", chord: "Bb Minor 7", notes: "Bb - Db - F - Ab" },
+        { interval: "4th", chord: "Cb Major 7", notes: "Cb - Eb - Gb - Bb" },
+        { interval: "5th", chord: "Db Dominant 7", notes: "Db - F - Ab - Cb" },
+        { interval: "6th", chord: "Eb Minor 7", notes: "Eb - Gb - Bb - Db" },
+        { interval: "7th", chord: "F Half Diminished 7", notes: "F - Ab - Cb - Eb" }
+    ],
+    G: [
+        { interval: "Root", chord: "G Major 7", notes: "G - B - D - F#" },
+        { interval: "2nd", chord: "A Minor 7", notes: "A - C - E - G" },
+        { interval: "3rd", chord: "B Minor 7", notes: "B - D - F# - A" },
+        { interval: "4th", chord: "C Major 7", notes: "C - E - G - B" },
+        { interval: "5th", chord: "D Dominant 7", notes: "D - F# - A - C" },
+        { interval: "6th", chord: "E Minor 7", notes: "E - G - B - D" },
+        { interval: "7th", chord: "F# Half Diminished 7", notes: "F# - A - C - E" }
+    ],
+    "G#": [
+        { interval: "Root", chord: "G# Major 7", notes: "G# - B# - D# - Fx" },
+        { interval: "2nd", chord: "A# Minor 7", notes: "A# - C# - E# - G#" },
+        { interval: "3rd", chord: "B# Minor 7", notes: "B# - D# - Fx - A#" },
+        { interval: "4th", chord: "C# Major 7", notes: "C# - E# - G# - B#" },
+        { interval: "5th", chord: "D# Dominant 7", notes: "D# - Fx - A# - C#" },
+        { interval: "6th", chord: "E# Minor 7", notes: "E# - G# - B# - D#" },
+        { interval: "7th", chord: "Fx Half Diminished 7", notes: "Fx - A# - C# - E#" }
+    ],
+    Ab: [
+        { interval: "Root", chord: "Ab Major 7", notes: "Ab - C - Eb - G" },
+        { interval: "2nd", chord: "Bb Minor 7", notes: "Bb - Db - F - Ab" },
+        { interval: "3rd", chord: "C Minor 7", notes: "C - Eb - G - Bb" },
+        { interval: "4th", chord: "Db Major 7", notes: "Db - F - Ab - C" },
+        { interval: "5th", chord: "Eb Dominant 7", notes: "Eb - G - Bb - Db" },
+        { interval: "6th", chord: "F Minor 7", notes: "F - Ab - C - Eb" },
+        { interval: "7th", chord: "G Half Diminished 7", notes: "G - Bb - Db - F" }
+    ]
+};
+
+
+
+
+    const notePronunciationMap = {
+        "A#": "A Sharp",
+        "Bb": "B Flat",
+        "C#": "C Sharp",
+        "Db": "D Flat",
+        "D#": "D Sharp",
+        "Eb": "E Flat",
+        "F#": "F Sharp",
+        "Gb": "G Flat",
+        "G#": "G Sharp",
+        "Ab": "A Flat"
+    };
+
+    let isPlaying = false;
+    let volumeOn = true;
+
+    function startTrainer() {
+        const key = document.getElementById("keySelect").value;
+        const chords = chordData[key];
+        const interval = parseInt(document.getElementById("intervalInput").value, 10) * 1000; // Convert to milliseconds
+
+        if (!chords) {
+            alert("No chords available for this key.");
+            return;
+        }
+
+        stopTrainer(); // Clear any ongoing training
+        isPlaying = true;
+
+        let index = 0;
+
+        const cycleChords = () => {
+            if (!isPlaying) return;
+
+            if (index >= chords.length) index = 0;
+
+            const { interval: chordInterval, chord, notes } = chords[index];
+
+            updateTable(chordInterval, chord, notes);
+            if (volumeOn) {
+                speakChord(chord, notes, () => {
+                    setTimeout(cycleChords, interval);
+                });
+            } else {
+                setTimeout(cycleChords, interval);
+            }
+
+            index++;
+        };
+
+        cycleChords();
+    }
+
+    function stopTrainer() {
+        isPlaying = false;
+
+        // Cancel any ongoing speech synthesis
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+        }
+
+        document.getElementById("chordTable").innerHTML = "<strong>Training Paused</strong>";
+    }
+
+    function updateTable(interval, chordName, notes) {
+        const tableHTML = `
+            <table>
+                <tr>
+                    <th>Interval</th>
+                    <th>Chord</th>
+                    <th>Notes</th>
+                </tr>
+                <tr>
+                    <td>${interval}</td>
+                    <td>${chordName}</td>
+                    <td>${notes}</td>
+                </tr>
+            </table>
+        `;
+        document.getElementById("chordTable").innerHTML = tableHTML;
+    }
+
+    function speakChord(chordName, notes, callback) {
+    if ('speechSynthesis' in window) {
+        const spokenChordName = chordName.split(" ").map(word => notePronunciationMap[word] || word).join(" ");
+        const spokenNotes = notes.split(" - ").map(note => notePronunciationMap[note] || note).join(", ");
+
+        // Announce chord name
+        const chordNameUtterance = new SpeechSynthesisUtterance(`${spokenChordName}`);
+        chordNameUtterance.rate = 1;
+
+        // Announce chord tones after a delay
+        chordNameUtterance.onend = () => {
+            const guessInterval = parseInt(document.getElementById("guessIntervalInput").value, 10) * 1000; // Guess interval in ms
+            setTimeout(() => {
+                const chordNotesUtterance = new SpeechSynthesisUtterance(spokenNotes);
+                chordNotesUtterance.rate = 1;
+
+                chordNotesUtterance.onend = () => setTimeout(callback, 500); // Pause 0.5s after speaking notes
+                speechSynthesis.speak(chordNotesUtterance);
+            }, guessInterval);
+        };
+
+        speechSynthesis.speak(chordNameUtterance);
+    } else {
+        setTimeout(callback, 500); // Fallback if speech synthesis is unavailable
+    }
+}
+
+
+    function toggleVolume() {
+        volumeOn = !volumeOn;
+        document.querySelector('.volume-button').textContent = volumeOn ? "🔊 Volume On" : "🔇 Volume Off";
+    }
+    </script>
+</body>
+</html>
